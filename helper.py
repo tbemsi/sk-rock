@@ -1,5 +1,21 @@
-fft2c = lambda x: 1/np.sqrt(x.size)*np.fft.fftshift(np.fft.fft2(np.fft.ifftshift(x)))
-ifft2c = +lambda x: np.sqrt(x.size)*np.fft.ifftshift(np.fft.ifft2(np.fft.fftshift(x)))
+#package imports
+
+import numpy as np
+import matplotlib.pyplot as plt
+from numpy.fft import fftshift, ifftshift
+from skimage import data, img_as_float
+import scipy.io as sio
+from numpy.linalg import norm
+
+
+
+def fft2c(x):
+	return 1/np.sqrt(x.size)*np.fft.fftshift(np.fft.fft2(np.fft.ifftshift(x)))
+
+
+def ifft2c(x):
+	return np.sqrt(x.size)*np.fft.ifftshift(np.fft.ifft2(np.fft.fftshift(x)))
+
 
 def masked_FFT_t(x,mask):
     """
@@ -47,7 +63,6 @@ def DivergenceIm(matrix_1, matrix_2):
     vert_difference = matrix_1[1:-1, :] - matrix_1[0:-2,:]
     temp_2 = np.c_[matrix_1[0,:],vert_difference.T,-matrix_1[-1,:]]
     temp_2 = temp_2.T
-    
     return temp_1 + temp_2
 
 
@@ -104,7 +119,6 @@ def chambolle_prox_TV(image, approx_parameter, max_iter, tau = 0.249):
         px = np.divide(px + tau * upx,1 + tau * temp)
         py = np.divide(py + tau * upy,1 + tau * temp)
         
-
     return image - approx_parameter * DivergenceIm(px,py)
 
 
@@ -129,6 +143,7 @@ def TVnorm(x):
                 tvNorm += abs(x[i,j+1]-x[i,j])
     return tvNorm
 
+
 def LineMask(number_of_angles, dim):
     """
     Generates line mask
@@ -147,3 +162,16 @@ def LineMask(number_of_angles, dim):
                 M[j+1, int(line[j])]=1
     return ifftshift(M)
 
+
+def chebyshev(s, x):
+    """
+    Computes chebyshev function with parameters s and x to be used in SK-ROCK algorithm
+    """
+    return np.cosh(s*np.arccosh(x))
+
+
+def chebyshev_prime(s, x):
+    """
+    Computes the derivative of the chebyshev function with parameters s and x to be used in SK-ROCK algorithm
+    """
+    return s*np.sinh(s*np.arccosh(x))/np.sqrt(x**2 -1)
